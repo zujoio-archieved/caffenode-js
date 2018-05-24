@@ -6,37 +6,39 @@
         {
             "target_name": "caffenodejs",
             "defines":[
-                #"<!@(node ./src/defines.js)"
+                "<!@(node ./src/defines.js)"
             ],
             "sources": [
                 "binding/caffenodejs.cc",
-                "binding/common.h"
+                "binding/common.h",
+                "binding/caffe/blob.h",
+                "binding/caffe/blob.cc"
             ],
             'include_dirs': [
-                #"<!@(node ./src/includes.js)"
+                "<!@(node ./src/includes.js)"
             ],
             'libraries': [
-                #"<!@(node ./src/libs.js)"
+                "<!@(node ./src/libs.js)"
             ],
             "cflags" : [
-    			#"-std=c++11"
+    			"-std=c++11"
             ],
             "cflags!" : [
-                #"-fno-exceptions"
+                "-fno-exceptions"
             ],
             "cflags_cc!": [
-                #"-fno-rtti",
-                #"-fno-exceptions",
-                #'-Wno-ignored-qualifiers'
+                "-fno-rtti",
+                "-fno-exceptions",
+                '-Wno-ignored-qualifiers'
             ],
             "ldflags" : [
-                #"-Wl,-rpath,'$$ORIGIN'"
+                "-Wl,-rpath,'$$ORIGIN'"
             ],
             "configurations": {
-                #"Debug": {
-                #    "cflags": ["--coverage"],
-                #    "ldflags": ["--coverage"]
-                #},
+                "Debug": {
+                    "cflags": ["--coverage"],
+                    "ldflags": ["--coverage"]
+                },
             }
         }
     ]
