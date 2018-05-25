@@ -17,18 +17,22 @@ module.exports = {
 
     cvIncludePath: resolvePath(caffeNodeJsBuild.opencvInclude),
     cvLibPath: resolvePath(caffeNodeJsBuild.opencvLibDir),
+    opencvModules: caffeNodeJsBuild.opencvModules,
 
     cudaIncludePath: resolvePath(caffeNodeJsBuild.cudaInclude),
-    // todo - lib path CUDA
+    cudaLib: resolvePath(caffeNodeJsBuild.cudaLib),
     cudnnIncludePath: resolvePath(caffeNodeJsBuild.cuDnnInclude),
-    // todo - lib path CUDNN
+    cudaModules: caffeNodeJsBuild.cudaModules,
+    cuDnnModules: caffeNodeJsBuild.cuDnnModules,
 
     ncclIncludePath: resolvePath(caffeNodeJsBuild.ncclInclude),
     ncclLibPath: resolvePath(caffeNodeJsBuild.ncclLibDir),
+    ncclModules: caffeNodeJsBuild.ncclModules,
 
-    protobufIncludePath: resolvePath(caffeNodeJsBuild.protobufInclude),
-    prtobufLibPath: resolvePath(caffeNodeJsBuild.protobufLibDir),
 
     caffeIncludePath: resolvePath(caffeNodeJsBuild.caffeInclude),
-    caffeLibPath: resolvePath(caffeNodeJsBuild.caffeLibDir)
+    caffeLibPath: resolvePath(caffeNodeJsBuild.caffeLibDir),
+    caffeModules: caffeNodeJsBuild.caffeModules,
+
+    isCPU: caffeNodeJsBuild.isCPU
 }

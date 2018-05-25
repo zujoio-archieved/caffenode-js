@@ -10,9 +10,8 @@
             ],
             "sources": [
                 "binding/caffenodejs.cc",
-                "binding/common.h",
-                "binding/caffe/blob.h",
-                "binding/caffe/blob.cc"
+                "binding/util/debug.h",
+                "binding/util/status.h"
             ],
             'include_dirs': [
                 "<!@(node ./src/includes.js)"
