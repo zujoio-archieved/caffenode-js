@@ -1,8 +1,8 @@
+
 #include <assert.h>
 #include <node_api.h>
-#include "caffe/Blob.h"
+#include "caffe/caffenode_blob.h"
 #include "common.h"
-
 namespace caffenodejs{
 
 static napi_value CreateBlob(napi_env env, napi_callback_info info) {
@@ -11,7 +11,7 @@ static napi_value CreateBlob(napi_env env, napi_callback_info info) {
   NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
 
   napi_value instance;
-  NAPI_CALL(env, Blob::NewInstance(env, args[0], &instance));
+  NAPI_CALL(env, CaffeNode_Blob::NewInstance(env, args[0], &instance));
 
   return instance;
 }
@@ -21,7 +21,7 @@ static napi_value CreateBlob(napi_env env, napi_callback_info info) {
   { name, 0, func, 0, 0, 0, napi_default, 0 }
 
 napi_value Init(napi_env env, napi_value exports) {
-  Blob::Init(env);
+  CaffeNode_Blob::Init(env);
 
   napi_property_descriptor desc[] = {
       {"blob", 0, CreateBlob, 0, 0, 0, napi_default, 0}

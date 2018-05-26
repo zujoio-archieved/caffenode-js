@@ -1,7 +1,9 @@
 const { expect } = require('chai');
 const caffeNode = require('../caffenode')
-describe('Hello', () => {
+describe('Blob', () => {
     it('should create blob instance', () => {
-        expect(caffeNode.blob()).to.not.eql(undefined);
+        let blob = caffeNode.blob();
+        expect(blob).to.not.eql(undefined);
+         blob = caffeNode.blob(1,1,1,1)
     })
 })

@@ -37,5 +37,7 @@ module.exports = {
     caffeBuildSrc: resolvePath(`${caffeNodeJsBuild.caffeBuild}/src`),
     caffeModules: caffeNodeJsBuild.caffeModules,
 
-    isCPU: caffeNodeJsBuild.isCPU
+    isCPU: caffeNodeJsBuild.isCPU,
+
+    libs: caffeNodeJsBuild.libs
 }

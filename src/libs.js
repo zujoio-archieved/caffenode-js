@@ -12,14 +12,20 @@ const {
     cuDnnModules,
     caffeModules,
 
-    isCPU
+    isCPU,
+    libs
 } = require('./util');
 
+// import caffe libs
+console.log(`-L${caffeLibPath}`);
+console.log(`-L${cvLibPath}`);
+caffeModules.forEach(lib => console.log(`-l${lib}`));
+//console.log(`-Wl,-rpath,${caffeLibPath}`);
 
 // import CV Libs
-console.log(`-L${cvLibPath}`);
+//console.log(`-L${cvLibPath}`);
 opencvModules.forEach(lib => console.log(`-lopencv_${lib}`));
-console.log(`-Wl,-rpath,${cvLibPath}`);
+//console.log(`-Wl,-rpath,${cvLibPath}`);
 
 if (!isCPU) {
     //import CUDA libs 
@@ -38,11 +44,10 @@ if (!isCPU) {
     console.log(`-Wl,-rpath,${ncclLibPath}`);
 }
 
-// import caffe libs
-console.log(`-L${caffeLibPath}`);
-caffeModules.forEach(lib => console.log(`-l${lib}`));
-console.log(`-Wl,-rpath,${caffeLibPath}`);
 
+/*libs.forEach(lib => {
+    console.log(lib.path);
+})*/
 
 
 
