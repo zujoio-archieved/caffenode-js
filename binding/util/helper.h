@@ -1,10 +1,9 @@
-#ifndef CAFFE_NODEJS_UTIL_VALIDATE_H_
-#define CAFFE_NODEJS_UTIL_VALIDATE_H_
+#ifndef CAFFE_NODEJS_UTIL_HELPER_H_
+#define CAFFE_NODEJS_UTIL_HELPER_H_
 
 #include <node_api.h>
 #include <stdio.h>
-#include "debug.h"
-#include "status.h"
+#include <debug.h>
 
 namespace caffenodejs {
 
@@ -55,4 +54,4 @@ inline bool isConstructorCall(napi_env env, napi_callback_info info,
 }
 
 }  // namespace caffenodejs
-#endif  // CAFFE_NODEJS_UTIL_VALIDATE_H_
+#endif  // CAFFE_NODEJS_UTIL_HELPER_H_

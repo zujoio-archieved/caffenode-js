@@ -1,118 +1,60 @@
-#ifndef CAFFE_NODEJS_UTIL_H_
-#define CAFFE_NODEJS_UTIL_H_
+// Empty value so that macros here are able to return NULL or void
+#define NAPI_RETVAL_NOTHING  // Intentionally blank #define
 
-#include <node_api.h>
-#include <stdio.h>
-#include <cstdlib>
-#include <sstream>
-#include <vector>
-#include <string>
+#define GET_AND_THROW_LAST_ERROR(env)                                    \
+  do {                                                                   \
+    const napi_extended_error_info *error_info;                          \
+    napi_get_last_error_info((env), &error_info);                        \
+    bool is_pending;                                                     \
+    napi_is_exception_pending((env), &is_pending);                       \
+    /* If an exception is already pending, don't rethrow it */           \
+    if (!is_pending) {                                                   \
+      const char* error_message = error_info->error_message != NULL ?    \
+        error_info->error_message :                                      \
+        "empty error message";                                           \
+      napi_throw_error((env), NULL, error_message);                      \
+    }                                                                    \
+  } while (0)
 
-#define ARRAY_SIZE(array)           \
-  {                                 \
-    sizeof(array), sizeof(array[0]) \
-  }
+#define NAPI_ASSERT_BASE(env, assertion, message, ret_val)               \
+  do {                                                                   \
+    if (!(assertion)) {                                                  \
+      napi_throw_error(                                                  \
+          (env),                                                         \
+        NULL,                                                            \
+          "assertion (" #assertion ") failed: " message);                \
+      return ret_val;                                                    \
+    }                                                                    \
+  } while (0)
 
-#define DEBUG 0
+// Returns NULL on failed assertion.
+// This is meant to be used inside napi_callback methods.
+#define NAPI_ASSERT(env, assertion, message)                             \
+  NAPI_ASSERT_BASE(env, assertion, message, NULL)
 
-namespace caffenodejs
-{
+// Returns empty on failed assertion.
+// This is meant to be used inside functions with void return type.
+#define NAPI_ASSERT_RETURN_VOID(env, assertion, message)                 \
+  NAPI_ASSERT_BASE(env, assertion, message, NAPI_RETVAL_NOTHING)
 
-#define NAPI_THROW_ERROR(env, message) \
-  ThrowError(env, message, __FILE__, __LINE__);
+#define NAPI_CALL_BASE(env, the_call, ret_val)                           \
+  do {                                                                   \
+    if ((the_call) != napi_ok) {                                         \
+      GET_AND_THROW_LAST_ERROR((env));                                   \
+      return ret_val;                                                    \
+    }                                                                    \
+  } while (0)
 
-/**
-   * @param {char*} message: message to throw bug
-   * @param {char*} file: name of file
-   * @param {size_t} line_number: number of line
-   **/
-inline void Log(const char *message, const char *file, const size_t line_number)
-{
-  if (DEBUG)
-  {
-    fprintf(stderr, "** -%s:%lu\n-- %s\n", file, line_number, message);
-  }
-}
+// Returns NULL if the_call doesn't return napi_ok.
+#define NAPI_CALL(env, the_call)                                         \
+  NAPI_CALL_BASE(env, the_call, NULL)
 
-/**
-   * @param {napi_env} env: napi enviroment
-   * @param {char*} message: message to throw bug
-   * @param {char*} file: name of file
-   * @param {size_t} line_number: number of line
-   **/
-inline void ThrowError(napi_env env, const char *message, const char *file, const size_t line_number)
-{
-  Log(message, file, line_number);
-  napi_throw_error(env, nullptr, message);
-}
+// Returns empty if the_call doesn't return napi_ok.
+#define NAPI_CALL_RETURN_VOID(env, the_call)                             \
+  NAPI_CALL_BASE(env, the_call, NAPI_RETVAL_NOTHING)
 
-#define NAPI_OK(env, status)                   \
-  if (NapiOk(env, status, __FILE__, __LINE__)) \
-    return;
-#define NAPI_OK_RETURN(env, status, ret_val)    \
-  if (!NapiOk(env, status, __FILE__, __LINE__)) \
-    return ret_val;
-/**
-   * @param {napi_env} env: napi enviroment
-   * @param {napi_status} status: possbile n api status
-   * @param {char*} file: name of file
-   * @param {size_t} line_number: number of line
-   **/
-inline bool NapiOk(napi_env env, napi_status status, const char *file, const size_t lineNumber)
-{
-  if (status != napi_ok)
-  {
-    const napi_extended_error_info *err = 0;
-    napi_get_last_error_info(env, &err);
+#define DECLARE_NAPI_PROPERTY(name, func)                                \
+  { (name), 0, (func), 0, 0, 0, napi_default, 0 }
 
-    std::ostringstream string_stream;
-    string_stream << "Invalid Status -> " << err->error_message;
-    NAPI_THROW_ERROR(env, string_stream.str().c_str());
-  }
-  return status == napi_ok;
-}
-
-/**
-   * @param {napi_env} env: 
-   * */
-inline bool IsExceptionPending(napi_env env)
-{
-  bool exception = false;
-  NAPI_OK_RETURN(env, napi_is_exception_pending(env, &exception), exception);
-  return exception;
-}
-
-
-
-#define IS_OBJECT(env, value)                    \
-  if (!IsObject(env, value, __FILE__, __LINE__)) \
-    return;
-
-#define IS_OBJECT_RETURN(env, value, ret_value)  \
-  if (!IsObject(env, value, __FILE__, __LINE__)) \
-    return ret_value;
-/**
-   *@param {napi_env} env
-   *@param {napi_value} value
-   *@param {char*} file
-   *@param {size_t} lineNumber
-   **/
-inline bool IsObject(napi_env env, napi_value value, const char *file, const size_t lineNumber)
-{
-  napi_valuetype type;
-  NAPI_OK_RETURN(env, napi_typeof(env, value, &type), type);
-  bool is_object = type == napi_object;
-  if (!is_object)
-  {
-    NAPI_THROW_ERROR(env, "Invalid Argument, Object need to be specified!")
-  }
-  return is_object;
-}
-
-
-
-
-
-} // namespace caffenodejs
-
-#endif // CAFFE_NODEJS_UTIL_STATUS_H_
+#define DECLARE_NAPI_GETTER(name, func)                                  \
+  { (name), 0, 0, (func), 0, 0, napi_default, 0 }

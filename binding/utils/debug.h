@@ -9,6 +9,10 @@
 namespace caffenodejsutil
 {
 
+#define DEBUG 0
+
+#define NAPI_THROW_ERROR(env, message) \
+  ThrowError(env, message, __FILE__, __LINE__);
 
 /**
    * @param {char*} message: message to throw bug

@@ -4,8 +4,9 @@
 #include <node_api.h>
 #include <sstream>
 
-namespace caffenodejsutil{
+#include "debug.h";
 
+namespace caffenodejsutil{
 #define NAPI_OK(env, status)                   \
   if (NapiOk(env, status, __FILE__, __LINE__)) \
     return;
@@ -32,15 +33,6 @@ inline bool NapiOk(napi_env env, napi_status status, const char *file, const siz
   return status == napi_ok;
 }
 
-/**
-   * @param {napi_env} env: 
-   * */
-inline bool IsExceptionPending(napi_env env)
-{
-  bool exception = false;
-  NAPI_OK_RETURN(env, napi_is_exception_pending(env, &exception), exception);
-  return exception;
-}
 } // cafenoidejs
 
 #endif // CAFFE_NODEJS_UTIL_STATUS_H_

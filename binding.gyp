@@ -10,14 +10,20 @@
             ],
             "sources": [
                 "binding/caffenodejs.cc",
-                "binding/util/debug.h",
-                "binding/util/status.h"
+                "binding/caffe/Blob.h",
+                "binding/caffe/Blob.cc",
+                "binding/utils/debug.h",
+                "binding/utils/status.h"
             ],
             'include_dirs': [
+                
                 "<!@(node ./src/includes.js)"
             ],
             'libraries': [
-                "<!@(node ./src/libs.js)"
+                "<!(echo /home/arjunkava/Work/caffenode-js/node_modules/caffenode-js-build/caffe/caffe/build/lib/libcaffe.so)",
+                 "<!(echo /home/arjunkava/Work/caffenode-js/node_modules/caffenode-js-build/caffe/caffe/build/lib/libcaffe.a)",
+                 "-lboost_system"
+                #"<!@(node ./src/libs.js)"
             ],
             "cflags" : [
     			"-std=c++11"

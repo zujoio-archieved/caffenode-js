@@ -20,6 +20,7 @@ module.exports = {
     opencvModules: caffeNodeJsBuild.opencvModules,
 
     cudaIncludePath: resolvePath(caffeNodeJsBuild.cudaInclude),
+    cudaPlateformIncludePath: resolvePath('/usr/local/cuda-9.1/targets/x86_64-linux/include'),
     cudaLib: resolvePath(caffeNodeJsBuild.cudaLib),
     cudnnIncludePath: resolvePath(caffeNodeJsBuild.cuDnnInclude),
     cudaModules: caffeNodeJsBuild.cudaModules,
@@ -32,6 +33,8 @@ module.exports = {
 
     caffeIncludePath: resolvePath(caffeNodeJsBuild.caffeInclude),
     caffeLibPath: resolvePath(caffeNodeJsBuild.caffeLibDir),
+    caffeProtoDir: resolvePath(caffeNodeJsBuild.caffeProtoDir),
+    caffeBuildSrc: resolvePath(`${caffeNodeJsBuild.caffeBuild}/src`),
     caffeModules: caffeNodeJsBuild.caffeModules,
 
     isCPU: caffeNodeJsBuild.isCPU

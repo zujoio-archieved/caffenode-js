@@ -1,24 +1,36 @@
-#include <node_api.h>
 #include <assert.h>
+#include <node_api.h>
+#include "caffe/Blob.h"
 #include "common.h"
 
-napi_value Hello(napi_env env, napi_callback_info info) {
-  napi_status status;
-  napi_value world;
-  status = napi_create_string_utf8(env, "world", 5, &world);
-  assert(status == napi_ok);
-  return world;
+namespace caffenodejs{
+
+static napi_value CreateBlob(napi_env env, napi_callback_info info) {
+  size_t argc = 1;
+  napi_value args[1];
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
+
+  napi_value instance;
+  NAPI_CALL(env, Blob::NewInstance(env, args[0], &instance));
+
+  return instance;
 }
 
-#define DECLARE_NAPI_METHOD(name, func)                          \
+
+#define DECLARE_NAPI_METHOD(name, func) \
   { name, 0, func, 0, 0, 0, napi_default, 0 }
 
 napi_value Init(napi_env env, napi_value exports) {
-  napi_status status;
-  napi_property_descriptor desc = DECLARE_NAPI_METHOD("hello", Hello);
-  status = napi_define_properties(env, exports, 1, &desc);
-  assert(status == napi_ok);
+  Blob::Init(env);
+
+  napi_property_descriptor desc[] = {
+      {"blob", 0, CreateBlob, 0, 0, 0, napi_default, 0}
+      };
+
+  napi_define_properties(env, exports, sizeof(desc) / sizeof(*desc), desc);
+
   return exports;
 }
 
 NAPI_MODULE(NODE_GYP_MODULE_NAME, Init)
+}

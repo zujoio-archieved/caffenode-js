@@ -6,7 +6,9 @@ const {
     cudaIncludePath,
     cuDnnIncludePath,
     ncclIncludePath,
-    caffeIncludePath
+    caffeIncludePath,
+    caffeProtoDir,
+    caffeBuildSrc
 } = require('./util');
 
 // include CV 
@@ -22,6 +24,12 @@ if (!caffeNodeJsBuild.isCPU) {
     // include NCCL
     console.log(ncclIncludePath);
 }
+
+// include CAFFE src
+console.log(caffeBuildSrc);
+
+// include CAFFE proto
+console.log(caffeProtoDir);
 
 // include CAFFE
 console.log(caffeIncludePath);
