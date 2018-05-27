@@ -1,5 +1,6 @@
 
 #define CPU_ONLY 1
+#include <string.h>
 #include <caffe/caffe.hpp>
 #include <vector>
 
@@ -16,7 +17,6 @@ CaffeNode_Blob::~CaffeNode_Blob() {
   napi_delete_reference(env_, wrapper_);
 }
 
-CaffeNode_Blob::CaffeNode_Blob() : env_(nullptr), wrapper_(nullptr) {}
 CaffeNode_Blob::CaffeNode_Blob(const int num, const int channels,
                                const int height, const int width) {
   blob_ = new caffe::Blob<Dtype>(num, channels, height, width);
@@ -32,9 +32,12 @@ napi_ref CaffeNode_Blob::constructor;
 
 napi_status CaffeNode_Blob::Init(napi_env env) {
   napi_status status;
+  napi_property_descriptor properties[] = {
+      DECLARE_NAPI_PROPERTY("shape", shape)};
 
   napi_value cons;
-  status = napi_define_class(env, "Blob", -1, New, nullptr, 0, nullptr, &cons);
+  status =
+      napi_define_class(env, "Blob", -1, New, nullptr, 1, properties, &cons);
   if (status != napi_ok) return status;
 
   status = napi_create_reference(env, cons, 1, &constructor);
@@ -44,7 +47,7 @@ napi_status CaffeNode_Blob::Init(napi_env env) {
 }
 
 /**
- *@desc: initilize blob object
+ * @desc: initilize blob object
  **/
 napi_value CaffeNode_Blob::New(napi_env env, napi_callback_info info) {
   napi_value target;
@@ -87,13 +90,10 @@ napi_value CaffeNode_Blob::New(napi_env env, napi_callback_info info) {
   }*/
 
   if (is_constructor) {
-    if (argc == 3) {
-      blob = new CaffeNode_Blob(2, 10, 2, 3);
-    } else {
-      blob = new CaffeNode_Blob();
-    }
+    blob = new CaffeNode_Blob(2, 10, 2, 3);
+
   } else {
-    blob = new CaffeNode_Blob();
+    napi_throw_error(env, nullptr, "Invalid Call!");
   }
 
   blob->env_ = env;
@@ -122,24 +122,22 @@ napi_status CaffeNode_Blob::NewInstance(napi_env env, napi_value arg,
   return napi_ok;
 }
 
-
 napi_value CaffeNode_Blob::shape(napi_env env, napi_callback_info info) {
   napi_value _this;
-  NAPI_CALL(env,napi_get_cb_info(env, info, nullptr, nullptr, &_this, nullptr));
+  NAPI_CALL(env,
+            napi_get_cb_info(env, info, nullptr, nullptr, &_this, nullptr));
 
   CaffeNode_Blob* obj;
   NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void**>(&obj)));
 
-   vector<int> shape =  obj->blob_->shape();
-  NAPI_CALL(env, napi_create_array(env, &ret));
+  std::vector<int> shape = obj->blob_->shape();
   napi_value ret;
-  for(std::vector<int>::size_type i = 0; i != shape.size(); i++) {
-        napi_value e;
-    NAPI_CALL(env, napi_get_element(env, shape, i, &e));
-    NAPI_CALL(env, napi_set_element(env, ret, i, e));
+  NAPI_CALL(env, napi_create_array(env, &ret));
+  for (std::vector<int>::size_type i = 0; i != shape.size(); i++) {
+    napi_value shapeVal;
+    NAPI_CALL(env, napi_create_int64(env, shape[i], &shapeVal));
+    NAPI_CALL(env, napi_set_element(env, ret, i, shapeVal));
   }
-
- 
 
   return ret;
 }
