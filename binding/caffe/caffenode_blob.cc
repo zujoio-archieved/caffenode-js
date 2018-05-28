@@ -1,10 +1,12 @@
 
 #define CPU_ONLY 1
+
 #include <string.h>
 #include <caffe/caffe.hpp>
 #include <vector>
 
-#include "../common.h"
+//#include "../common.h"
+#include "../utils/common.h"
 #include "caffenode_blob.h"
 #include "shared.h"
 
@@ -22,9 +24,9 @@ CaffeNode_Blob::CaffeNode_Blob(const int num, const int channels,
   blob_ = new caffe::Blob<Dtype>(num, channels, height, width);
 }
 
-void CaffeNode_Blob::Destructor(napi_env env, void* nativeObject,
-                                void* /*finalize_hint*/) {
-  CaffeNode_Blob* blob = static_cast<CaffeNode_Blob*>(nativeObject);
+void CaffeNode_Blob::Destructor(napi_env env, void *nativeObject,
+                                void * /*finalize_hint*/) {
+  CaffeNode_Blob *blob = static_cast<CaffeNode_Blob *>(nativeObject);
   delete blob;
 }
 
@@ -59,7 +61,7 @@ napi_value CaffeNode_Blob::New(napi_env env, napi_callback_info info) {
   napi_value _this;
   NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));
 
-  CaffeNode_Blob* blob;
+  CaffeNode_Blob *blob;
 
   /*if (is_constructor) {
     if (argc == 3) {
@@ -106,7 +108,7 @@ napi_value CaffeNode_Blob::New(napi_env env, napi_callback_info info) {
 }
 
 napi_status CaffeNode_Blob::NewInstance(napi_env env, napi_value arg,
-                                        napi_value* instance) {
+                                        napi_value *instance) {
   napi_status status;
 
   const int argc = 1;
@@ -127,8 +129,8 @@ napi_value CaffeNode_Blob::shape(napi_env env, napi_callback_info info) {
   NAPI_CALL(env,
             napi_get_cb_info(env, info, nullptr, nullptr, &_this, nullptr));
 
-  CaffeNode_Blob* obj;
-  NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void**>(&obj)));
+  CaffeNode_Blob *obj;
+  NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void **>(&obj)));
 
   std::vector<int> shape = obj->blob_->shape();
   napi_value ret;
