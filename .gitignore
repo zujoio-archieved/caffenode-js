@@ -62,3 +62,7 @@ typings/
 
 # binding 
 build
+
+#ide
+.vscode/
+.idea/

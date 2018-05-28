@@ -1,18 +1,14 @@
 {
     "variables":{
-        'default_lib_dir':'/usr/bin/x86_64-linux-gnu-ld',
+        #'has_gpu': '<!(if which nvidia-smi; then echo true; else echo false; fi)'
         'cv_lib_dir': '/home/arjunkava/Work/caffenode-js/node_modules/caffenode-js-build/opencv/build/lib',
-        'caffe_lib_dir': '/home/arjunkava/Work/caffenode-js/node_modules/caffenode-js-build/caffe/caffe/build/lib',
-        'cv_include':'/home/arjunkava/Work/caffenode-js/node_modules/caffenode-js-build/opencv/build/include',
-        'cv_src_include':'/home/arjunkava/Work/caffenode-js/node_modules/caffenode-js-build/caffe/caffe/build/src',
-        'caffe_include':'/home/arjunkava/Work/caffenode-js/node_modules/caffenode-js-build/caffe/caffe/include',
-        'caffe_proto_include':'/home/arjunkava/Work/caffenode-js/node_modules/caffenode-js-build/caffe/caffe/src/'
+        'caffe_lib_dir': '/home/arjunkava/Work/caffenode-js/node_modules/caffenode-js-build/caffe/caffe/build/lib'
     },
     "targets": [
         {
             "target_name": "caffenodejs",
             "defines":[
-                "CPU_ONLY=1"
+                "<!@(node ./src/defines.js)"
             ],
             "sources": [
                 "binding/caffenodejs.cc",
@@ -22,18 +18,18 @@
                 "binding/utils/status.h"
             ],
             'include_dirs': [
-               '<(caffe_include)',
-               '<(caffe_proto_include)',
+                "<!@(node ./src/includes.js)"
             ],
             'libraries': [
-                '<@(caffe_lib_dir)/libcaffe.a',
-                '-lprotobuf',
-                '-lboost_system',
-                '-lpthread'
+                "<!@(node ./src/libs.js)",
+                 "-lboost_system"
             ],
-            'library_dirs' : [
-                '<(caffe_lib_dir)',
+            "ldflags" : [
+                "<!@(node ./src/ldflags.js)",
             ],
+            #'library_dirs':[
+            #    "<!@(node ./src/lib_dir.js)",
+            #],
             "cflags" : [
     			"-std=c++11"
             ],
@@ -45,6 +41,7 @@
                 "-fno-exceptions",
                 '-Wno-ignored-qualifiers'
             ],
+            
             "configurations": {
                 "Debug": {
                     "cflags": ["--coverage"],

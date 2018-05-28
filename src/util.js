@@ -17,18 +17,27 @@ module.exports = {
 
     cvIncludePath: resolvePath(caffeNodeJsBuild.opencvInclude),
     cvLibPath: resolvePath(caffeNodeJsBuild.opencvLibDir),
+    opencvModules: caffeNodeJsBuild.opencvModules,
 
     cudaIncludePath: resolvePath(caffeNodeJsBuild.cudaInclude),
-    // todo - lib path CUDA
+    cudaPlateformIncludePath: resolvePath('/usr/local/cuda-9.1/targets/x86_64-linux/include'),
+    cudaLib: resolvePath(caffeNodeJsBuild.cudaLib),
     cudnnIncludePath: resolvePath(caffeNodeJsBuild.cuDnnInclude),
-    // todo - lib path CUDNN
+    cudaModules: caffeNodeJsBuild.cudaModules,
+    cuDnnModules: caffeNodeJsBuild.cuDnnModules,
 
     ncclIncludePath: resolvePath(caffeNodeJsBuild.ncclInclude),
     ncclLibPath: resolvePath(caffeNodeJsBuild.ncclLibDir),
+    ncclModules: caffeNodeJsBuild.ncclModules,
 
-    protobufIncludePath: resolvePath(caffeNodeJsBuild.protobufInclude),
-    prtobufLibPath: resolvePath(caffeNodeJsBuild.protobufLibDir),
 
     caffeIncludePath: resolvePath(caffeNodeJsBuild.caffeInclude),
-    caffeLibPath: resolvePath(caffeNodeJsBuild.caffeLibDir)
+    caffeLibPath: resolvePath(caffeNodeJsBuild.caffeLibDir),
+    caffeProtoDir: resolvePath(caffeNodeJsBuild.caffeProtoDir),
+    caffeBuildSrc: resolvePath(`${caffeNodeJsBuild.caffeBuild}/src`),
+    caffeModules: caffeNodeJsBuild.caffeModules,
+
+    isCPU: caffeNodeJsBuild.isCPU,
+
+    libs: caffeNodeJsBuild.libs
 }

@@ -1,5 +1,11 @@
 {
     "files.associations": {
-        "sstream": "cpp"
-    }
+        "sstream": "cpp",
+        "vector": "cpp",
+        "*.ipp": "cpp",
+        "system_error": "cpp",
+        "type_traits": "cpp",
+        "ratio": "cpp"
+    },
+    "C_Cpp.clang_format_style": "Google"
 }
