@@ -43,7 +43,14 @@ napi_status CaffeNode_Blob::Init(napi_env env) {
       DECLARE_NAPI_PROPERTY("Reshape", Reshape),
       DECLARE_NAPI_PROPERTY("ReshapeLike", ReshapeLike),
       DECLARE_NAPI_PROPERTY("shape", shape),
-      DECLARE_NAPI_PROPERTY("shape_string", shape_string)
+      DECLARE_NAPI_PROPERTY("shape_string", shape_string),
+      DECLARE_NAPI_PROPERTY("num_axes", num_axes),
+      DECLARE_NAPI_PROPERTY("count", count),
+      DECLARE_NAPI_PROPERTY("CanonicalAxisIndex", CanonicalAxisIndex),
+      DECLARE_NAPI_PROPERTY("num", num),
+      DECLARE_NAPI_PROPERTY("channels", channels),
+      DECLARE_NAPI_PROPERTY("height", height),
+      DECLARE_NAPI_PROPERTY("width", width)
   };
 
   napi_value cons;
@@ -69,7 +76,7 @@ napi_value CaffeNode_Blob::New(napi_env env, napi_callback_info info) {
   napi_value _this;
   NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));
 
-  CaffeNode_Blob *blob;
+  CaffeNode_Blob *blob = nullptr;
 
   size_t vecNumArg = 1;
   size_t channelsNumArg = 4;
@@ -86,10 +93,10 @@ napi_value CaffeNode_Blob::New(napi_env env, napi_callback_info info) {
     IS_NUMBER_RETVALUE(env, args[indexHeight], nullptr);
     IS_NUMBER_RETVALUE(env, args[indexWidth], nullptr);
 
-    int32_t num;
-    int32_t channels;
-    int32_t height;
-    int32_t width;
+    int32_t num = -1;
+    int32_t channels = -1;
+    int32_t height = -1;
+    int32_t width = -1;
     NAPI_CALL(env, napi_get_value_int32(env, args[indexNum], &num));
     NAPI_CALL(env, napi_get_value_int32(env, args[indexChannels], &channels));
     NAPI_CALL(env, napi_get_value_int32(env, args[indexHeight], &height));
@@ -165,10 +172,10 @@ napi_value CaffeNode_Blob::Reshape(napi_env env, napi_callback_info info) {
     IS_NUMBER_RETVALUE(env, args[indexHeight], nullptr);
     IS_NUMBER_RETVALUE(env, args[indexWidth], nullptr);
 
-    int32_t num;
-    int32_t channels;
-    int32_t height;
-    int32_t width;
+    int32_t num = -1;
+    int32_t channels = -1;
+    int32_t height = -1;
+    int32_t width = -1;
     NAPI_CALL(env, napi_get_value_int32(env, args[indexNum], &num));
     NAPI_CALL(env, napi_get_value_int32(env, args[indexChannels], &channels));
     NAPI_CALL(env, napi_get_value_int32(env, args[indexHeight], &height));
@@ -220,18 +227,35 @@ napi_value CaffeNode_Blob::ReshapeLike(napi_env env, napi_callback_info info){
 * @desc: returns shape of blob
 **/
 napi_value CaffeNode_Blob::shape(napi_env env, napi_callback_info info) {
+
+  size_t argc;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr));
+
+  napi_value args[argc];
   napi_value _this;
-  NAPI_CALL(env, napi_get_cb_info(env, info, nullptr, nullptr, &_this, nullptr));
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));
 
   CaffeNode_Blob *blob;
   NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void **>(&blob)));
 
-  std::vector<int> shape = blob->blob_->shape();
-  napi_value jsShape;
-  
-  ConverIntVectorToJsArray(env, &shape, &jsShape);
+  const int argIndex = 1;
 
-  return jsShape;
+  // shape(index)
+  if(argc == argIndex){
+    int input = -1;
+    ConvertNapiToInt(env, &args[0], &input);
+    int valueAtIndex = blob->blob_->shape(input);
+    napi_value result;
+    ConvertIntToNapi(env, &valueAtIndex, &result);
+    return result;
+  }
+  // shape()
+  else{
+    std::vector<int> shape = blob->blob_->shape();
+    napi_value jsShape;
+    ConverIntVectorToJsArray(env, &shape, &jsShape);
+    return jsShape;
+  }
 }
 
 /**
@@ -249,5 +273,181 @@ napi_value CaffeNode_Blob::shape_string(napi_env env, napi_callback_info info){
   return jsString;
 }
 
+/**
+* @desc: returns number of axes
+**/
+napi_value CaffeNode_Blob::num_axes(napi_env env, napi_callback_info info) {
+
+  size_t argc;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr));
+
+  napi_value args[argc];
+  napi_value _this;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));
+
+  CaffeNode_Blob *blob;
+  NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void **>(&blob)));
+
+  int numAxes = blob->blob_->num_axes(); 
+  napi_value result;
+  ConvertIntToNapi(env, &numAxes, &result);
+  return result;
+}
+
+/**
+* @desc: returns volume of specified axes
+**/
+napi_value CaffeNode_Blob::count(napi_env env, napi_callback_info info) {
+
+  size_t argc;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr));
+
+  napi_value args[argc];
+  napi_value _this;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));
+
+  CaffeNode_Blob *blob;
+  NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void **>(&blob)));
+
+  const int argStart = 1;
+  const int argStartEnd = 2;
+
+  // count(start_axis)
+  if(argc == argStart){
+    int start_axis = -1;
+    ConvertNapiToInt(env, &args[argStart - 1], &start_axis);
+    int volume = blob->blob_->count(start_axis);
+    napi_value result;
+    ConvertIntToNapi(env, &volume, &result);
+    return result;
+  }
+  // count(start_axis, end_axis)
+  else if(argc == argStartEnd){
+    int start_axis = -1;
+    ConvertNapiToInt(env, &args[argStart -1], &start_axis);
+    int end_axis = -1;
+    ConvertNapiToInt(env, &args[argStartEnd -1], &end_axis);
+    int volume = blob->blob_->count(start_axis, end_axis);
+    napi_value result;
+    ConvertIntToNapi(env, &volume, &result);
+    return result;
+  }
+  // count()
+  else{
+    int volume = blob->blob_->count();
+    napi_value result;
+    ConvertIntToNapi(env, &volume, &result);
+    return result;
+  }
+}
+
+/**
+* @desc: returns
+**/
+napi_value CaffeNode_Blob::CanonicalAxisIndex(napi_env env, napi_callback_info info){
+  size_t argc;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr));
+
+  napi_value args[argc];
+  napi_value _this;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));
+
+  CaffeNode_Blob *blob;
+  NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void **>(&blob)));
+
+  const int argAxisIndex = 1;
+
+  // count(start_axis)
+  if(argc == argAxisIndex){
+    int start_axis = -1;
+    ConvertNapiToInt(env, &args[argAxisIndex - 1], &start_axis);
+    int canonical = blob->blob_->CanonicalAxisIndex(start_axis);
+    napi_value result;
+    ConvertIntToNapi(env, &canonical, &result);
+    return result;
+  }
+  else{
+    NAPI_THROW_ERROR(env, "Invalid Arguments!");
+    return nullptr;
+  }
+}
+
+/**
+* @desc: returns num of shape
+**/
+napi_value CaffeNode_Blob::num(napi_env env, napi_callback_info info){
+  size_t argc;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr));
+
+  napi_value args[argc];
+  napi_value _this;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));
+
+  CaffeNode_Blob *blob;
+  NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void **>(&blob)));
+
+  int num = blob->blob_->num();
+  napi_value result;
+  ConvertIntToNapi(env, &num, &result);
+  return result;
+}
+
+/**
+* @desc: returns channels of shape
+**/
+napi_value CaffeNode_Blob::channels(napi_env env, napi_callback_info info){
+  size_t argc;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr));
+
+  napi_value args[argc];
+  napi_value _this;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));
+
+  CaffeNode_Blob *blob;
+  NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void **>(&blob)));
+
+  int channels = blob->blob_->channels();
+  napi_value result;
+  ConvertIntToNapi(env, &channels, &result);
+  return result;
+}
+/**
+* @desc: returns height of shape
+**/
+napi_value CaffeNode_Blob::height(napi_env env, napi_callback_info info){
+  size_t argc;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr));
+
+  napi_value args[argc];
+  napi_value _this;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));
+
+  CaffeNode_Blob *blob;
+  NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void **>(&blob)));
+
+  int height = blob->blob_->height();
+  napi_value result;
+  ConvertIntToNapi(env, &height, &result);
+  return result;
+}
+/**
+* @desc: returns height of shape
+**/
+napi_value CaffeNode_Blob::width(napi_env env, napi_callback_info info){
+  size_t argc;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr));
+
+  napi_value args[argc];
+  napi_value _this;
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));
+
+  CaffeNode_Blob *blob;
+  NAPI_CALL(env, napi_unwrap(env, _this, reinterpret_cast<void **>(&blob)));
+
+  int width = blob->blob_->width();
+  napi_value result;
+  ConvertIntToNapi(env, &width, &result);
+  return result;
+}
 
 }  // namespace caffenodejs

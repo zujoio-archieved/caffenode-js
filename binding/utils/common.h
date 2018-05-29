@@ -5,6 +5,7 @@
 #include "convert.h"
 #include "helper.h"
 #include "validate.h"
+#include "conversion.h"
 
 
 #endif // CAFFE_NODEJS_UTIL_H_

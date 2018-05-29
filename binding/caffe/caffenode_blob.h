@@ -21,6 +21,13 @@ class CaffeNode_Blob {
   static napi_value ReshapeLike(napi_env env, napi_callback_info info);
   static napi_value shape(napi_env env, napi_callback_info info);
   static napi_value shape_string(napi_env env, napi_callback_info info);
+  static napi_value num_axes(napi_env env, napi_callback_info info);
+  static napi_value count(napi_env env, napi_callback_info info);
+  static napi_value CanonicalAxisIndex(napi_env env, napi_callback_info info);
+  static napi_value num(napi_env env, napi_callback_info info);
+  static napi_value channels(napi_env env, napi_callback_info info);
+  static napi_value height(napi_env env, napi_callback_info info);
+  static napi_value width(napi_env env, napi_callback_info info);
  private:
   explicit CaffeNode_Blob(const int num, const int channels, const int height,
                           const int width);
