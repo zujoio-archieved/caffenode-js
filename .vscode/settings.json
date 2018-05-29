@@ -5,7 +5,7 @@
         "*.ipp": "cpp",
         "system_error": "cpp",
         "type_traits": "cpp",
-        "ratio": "cpp"
-    },
-    "C_Cpp.clang_format_style": "Google"
+        "ratio": "cpp",
+        "functional": "cpp"
+    }
 }
